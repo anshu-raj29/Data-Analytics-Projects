@@ -1,21 +1,13 @@
--- ============================================================
 -- OPERATION ANALYTICS AND INVESTIGATING METRIC SPIKE
--- Trainity Data Analytics Internship Project
--- ============================================================
 
-
--- ============================================================
 -- 1. DATABASE SETUP
--- ============================================================
 
 CREATE DATABASE IF NOT EXISTS operation_analytics;
 
 USE operation_analytics;
 
 
--- ============================================================
 -- 2. TABLE CREATION
--- ============================================================
 
 DROP TABLE IF EXISTS job_data;
 DROP TABLE IF EXISTS users;
@@ -23,9 +15,7 @@ DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS email_events;
 
 
--- ------------------------------------------------------------
 -- JOB DATA
--- ------------------------------------------------------------
 
 CREATE TABLE job_data (
     ds DATE,
@@ -38,9 +28,7 @@ CREATE TABLE job_data (
 );
 
 
--- ------------------------------------------------------------
 -- USERS
--- ------------------------------------------------------------
 
 CREATE TABLE users (
     user_id INT,
@@ -52,9 +40,7 @@ CREATE TABLE users (
 );
 
 
--- ------------------------------------------------------------
 -- EVENTS
--- ------------------------------------------------------------
 
 CREATE TABLE events (
     user_id INT,
@@ -67,9 +53,7 @@ CREATE TABLE events (
 );
 
 
--- ------------------------------------------------------------
 -- EMAIL EVENTS
--- ------------------------------------------------------------
 
 CREATE TABLE email_events (
     user_id INT,
@@ -79,20 +63,15 @@ CREATE TABLE email_events (
 );
 
 
--- ============================================================
 -- 3. RAW TABLES FOR CSV IMPORT
 --    Used because CSV dates need conversion before insertion
--- ============================================================
 
 DROP TABLE IF EXISTS job_data_raw;
 DROP TABLE IF EXISTS users_raw;
 DROP TABLE IF EXISTS events_raw;
 DROP TABLE IF EXISTS email_events_raw;
 
-
--- ------------------------------------------------------------
 -- JOB DATA RAW
--- ------------------------------------------------------------
 
 CREATE TABLE job_data_raw (
     ds VARCHAR(20),
@@ -105,9 +84,7 @@ CREATE TABLE job_data_raw (
 );
 
 
--- ------------------------------------------------------------
 -- USERS RAW
--- ------------------------------------------------------------
 
 CREATE TABLE users_raw (
     user_id INT,
@@ -119,9 +96,7 @@ CREATE TABLE users_raw (
 );
 
 
--- ------------------------------------------------------------
 -- EVENTS RAW
--- ------------------------------------------------------------
 
 CREATE TABLE events_raw (
     user_id INT,
@@ -134,9 +109,7 @@ CREATE TABLE events_raw (
 );
 
 
--- ------------------------------------------------------------
 -- EMAIL EVENTS RAW
--- ------------------------------------------------------------
 
 CREATE TABLE email_events_raw (
     user_id INT,
@@ -146,13 +119,8 @@ CREATE TABLE email_events_raw (
 );
 
 
--- ============================================================
 -- 4. CSV IMPORT
--- ============================================================
-
--- ------------------------------------------------------------
 -- JOB DATA
--- ------------------------------------------------------------
 
 LOAD DATA LOCAL INFILE 'E:/trainity/job_data.csv'
 INTO TABLE job_data_raw
@@ -162,9 +130,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
--- ------------------------------------------------------------
 -- USERS
--- ------------------------------------------------------------
 
 LOAD DATA LOCAL INFILE 'E:/trainity/users.csv'
 INTO TABLE users_raw
@@ -174,9 +140,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
--- ------------------------------------------------------------
 -- EVENTS
--- ------------------------------------------------------------
 
 LOAD DATA LOCAL INFILE 'E:/trainity/events.csv'
 INTO TABLE events_raw
@@ -186,9 +150,7 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
--- ------------------------------------------------------------
 -- EMAIL EVENTS
--- ------------------------------------------------------------
 
 LOAD DATA LOCAL INFILE 'E:/trainity/email_events.csv'
 INTO TABLE email_events_raw
@@ -198,14 +160,10 @@ LINES TERMINATED BY '\r\n'
 IGNORE 1 ROWS;
 
 
--- ============================================================
 -- 5. CLEAN AND INSERT DATA
--- ============================================================
 
--- ------------------------------------------------------------
 -- JOB DATA
 -- CSV DATE FORMAT: MM/DD/YYYY
--- ------------------------------------------------------------
 
 INSERT INTO job_data
     (ds, job_id, actor_id, event, language, time_spent, org)
@@ -220,10 +178,8 @@ SELECT
 FROM job_data_raw;
 
 
--- ------------------------------------------------------------
 -- USERS
 -- CSV DATE FORMAT: DD-MM-YYYY HH:MM
--- ------------------------------------------------------------
 
 INSERT INTO users
     (user_id, created_at, company_id, language, activated_at, state)
@@ -237,10 +193,8 @@ SELECT
 FROM users_raw;
 
 
--- ------------------------------------------------------------
 -- EVENTS
 -- CSV DATE FORMAT: DD-MM-YYYY HH:MM
--- ------------------------------------------------------------
 
 INSERT INTO events
     (user_id, occurred_at, event_type, event_name, location, device, user_type)
@@ -255,10 +209,8 @@ SELECT
 FROM events_raw;
 
 
--- ------------------------------------------------------------
 -- EMAIL EVENTS
 -- CSV DATE FORMAT: DD-MM-YYYY HH:MM
--- ------------------------------------------------------------
 
 INSERT INTO email_events
     (user_id, occurred_at, action, user_type)
@@ -270,9 +222,7 @@ SELECT
 FROM email_events_raw;
 
 
--- ============================================================
 -- 6. DATA VERIFICATION
--- ============================================================
 
 SELECT COUNT(*) AS total_job_records
 FROM job_data;
@@ -287,14 +237,9 @@ SELECT COUNT(*) AS total_email_events
 FROM email_events;
 
 
--- ============================================================
 -- CASE STUDY 1 — JOB DATA ANALYSIS
--- ============================================================
 
-
--- ============================================================
 -- Q1. JOBS REVIEWED OVER TIME
--- ============================================================
 
 SELECT
     ds,
@@ -304,9 +249,7 @@ GROUP BY ds
 ORDER BY ds;
 
 
--- ============================================================
 -- Q2. THROUGHPUT ANALYSIS
--- ============================================================
 
 SELECT
     ds,
@@ -321,9 +264,7 @@ GROUP BY ds
 ORDER BY ds;
 
 
--- ============================================================
 -- Q3. LANGUAGE SHARE ANALYSIS
--- ============================================================
 
 SELECT
     language,
@@ -338,9 +279,7 @@ GROUP BY language
 ORDER BY percentage_share DESC;
 
 
--- ============================================================
 -- Q4. DUPLICATE ROWS DETECTION
--- ============================================================
 
 SELECT
     ds,
@@ -363,14 +302,9 @@ GROUP BY
 HAVING COUNT(*) > 1;
 
 
--- ============================================================
 -- CASE STUDY 2 — INVESTIGATING METRIC SPIKE
--- ============================================================
 
-
--- ============================================================
 -- Q5. WEEKLY USER ENGAGEMENT
--- ============================================================
 
 SELECT
     YEARWEEK(occurred_at, 1) AS week,
@@ -381,9 +315,7 @@ GROUP BY YEARWEEK(occurred_at, 1)
 ORDER BY week;
 
 
--- ============================================================
 -- Q6. USER GROWTH ANALYSIS
--- ============================================================
 
 SELECT
     YEARWEEK(created_at, 1) AS week,
@@ -396,9 +328,7 @@ GROUP BY YEARWEEK(created_at, 1)
 ORDER BY week;
 
 
--- ============================================================
 -- Q7. WEEKLY RETENTION ANALYSIS
--- ============================================================
 
 WITH user_cohorts AS (
     SELECT
@@ -430,9 +360,7 @@ ORDER BY
     a.activity_week;
 
 
--- ============================================================
 -- Q8. WEEKLY ENGAGEMENT PER DEVICE
--- ============================================================
 
 SELECT
     YEARWEEK(occurred_at, 1) AS week,
@@ -448,9 +376,7 @@ ORDER BY
     active_users DESC;
 
 
--- ============================================================
 -- Q9. EMAIL ENGAGEMENT ANALYSIS
--- ============================================================
 
 SELECT
     COUNT(
@@ -513,8 +439,3 @@ SELECT
     ) AS click_rate
 
 FROM email_events;
-
-
--- ============================================================
--- END OF PROJECT
--- ============================================================
