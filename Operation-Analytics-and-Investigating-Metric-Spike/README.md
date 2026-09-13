@@ -93,4 +93,3 @@ Analyzed emails sent, opened, and clicked, along with email open and click rates
 - `Q7_Weekly_Retention.csv` — Q7 output.
 - `Q8_Device_Engagement.csv` — Q8 output.
 - `Q9_Email_Engagement.csv` — Q9 output.
-- `Operation_Analytics.pdf` — Project report.
